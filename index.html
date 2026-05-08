@@ -1,230 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Shopify PRO Store</title>
+<title>My Firebase Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f4f4f4;
-}
-
-/* HEADER */
-header {
-  background: #111;
-  color: white;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* LAYOUT */
-.container {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
-  padding: 20px;
-}
-
-/* PRODUCTS */
+body {font-family: Arial; margin:0; background:#f5f5f5;}
+header {background:#111;color:white;padding:15px;text-align:center;}
 .products {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  padding:20px;
 }
-
 .card {
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background:white;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
-
-.card img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-}
-
-.card-content {
-  padding: 10px;
-}
-
-.price {
-  color: green;
-  font-weight: bold;
-}
-
-button {
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.buy { background: black; color: white; }
-.add { background: #00c853; color: white; }
-
-/* CART */
-.cart {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  height: fit-content;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* ADMIN */
-.admin {
-  background: white;
-  padding: 15px;
-  margin: 20px;
-  border-radius: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
-}
-
-/* MOBILE */
-@media(max-width:900px){
-  .container {
-    grid-template-columns: 1fr;
-  }
-}
+.card img {width:100%;height:160px;object-fit:cover;}
+.card-content {padding:10px;}
+button {width:100%;padding:10px;background:black;color:white;border:none;cursor:pointer;}
+.price {color:green;font-weight:bold;}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>🔥 Shopify PRO Store</h2>
-  <div>Cart: <span id="cartCount">0</span></div>
+<h2>🔥 My Firebase Store</h2>
 </header>
 
-<!-- ADMIN PANEL -->
-<div class="admin">
-  <h3>Add Product (Admin Panel)</h3>
-  <input id="name" placeholder="Product Name">
-  <input id="price" placeholder="Price">
-  <input id="image" placeholder="Image URL">
-  <button onclick="addProduct()" class="add">Add Product</button>
-</div>
+<div class="products" id="products"></div>
 
-<div class="container">
+<script type="module">
 
-  <!-- PRODUCTS -->
-  <div class="products" id="products"></div>
+// ================= FIREBASE =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  <!-- CART -->
-  <div class="cart">
-    <h3>Your Cart</h3>
-    <div id="cartItems"></div>
-    <hr>
-    <button onclick="checkout()" class="buy">Pay with PayPal</button>
-  </div>
+apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
+  authDomain: "my-store-7ef38.firebaseapp.com",
+  projectId: "my-store-7ef38",
+  storageBucket: "my-store-7ef38.firebasestorage.app",
+  messagingSenderId: "732533225869",
+  appId: "1:732533225869:web:3e2f22fb76dcbe556fa5c4",
+  measurementId: "G-6HBSBDRSJK"
+};
 
-</div>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<script>
+// ================= LOAD PRODUCTS =================
+async function loadProducts(){
+  const querySnapshot = await getDocs(collection(db, "products"));
 
-// =====================
-// LOAD DATA
-// =====================
-let products = JSON.parse(localStorage.getItem("products")) || [];
-let cart = [];
-
-// default products (first time)
-if(products.length === 0){
-  products = [
-    {name:"Headphones", price:25, image:"https://images.unsplash.com/photo-1585386959984-a41552231693"},
-    {name:"Smart Watch", price:40, image:"https://images.unsplash.com/photo-1523275335684-37898b6baf30"}
-  ];
-  localStorage.setItem("products", JSON.stringify(products));
-}
-
-// =====================
-// SHOW PRODUCTS
-// =====================
-function renderProducts(){
   let box = document.getElementById("products");
   box.innerHTML = "";
 
-  products.forEach((p,i)=>{
+  querySnapshot.forEach((doc)=>{
+    let p = doc.data();
+
     box.innerHTML += `
       <div class="card">
         <img src="${p.image}">
         <div class="card-content">
           <h3>${p.name}</h3>
           <p class="price">$${p.price}</p>
-          <button class="add" onclick="addToCart(${i})">Add to Cart</button>
+          <button onclick="buy('${p.name}',${p.price})">Buy</button>
         </div>
       </div>
     `;
   });
 }
 
-// =====================
-// ADD PRODUCT (ADMIN)
-// =====================
-function addProduct(){
-  let name = document.getElementById("name").value;
-  let price = document.getElementById("price").value;
-  let image = document.getElementById("image").value;
-
-  products.push({name, price, image});
-  localStorage.setItem("products", JSON.stringify(products));
-
-  renderProducts();
-}
-
-// =====================
-// CART
-// =====================
-function addToCart(i){
-  cart.push(products[i]);
-  document.getElementById("cartCount").innerText = cart.length;
-  renderCart();
-}
-
-function renderCart(){
-  let box = document.getElementById("cartItems");
-  box.innerHTML = "";
-
-  cart.forEach((c,i)=>{
-    box.innerHTML += `
-      <p>${c.name} - $${c.price}</p>
-    `;
-  });
-}
-
-// =====================
-// PAYPAL CHECKOUT
-// =====================
-function checkout(){
+// ================= PAYPAL =================
+window.buy = function(name, price){
   let email = "your-paypal-email@example.com";
-
-  let total = cart.reduce((sum,i)=> sum + Number(i.price),0);
 
   let url =
   "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick" +
   "&business=" + email +
-  "&item_name=Order" +
-  "&amount=" + total +
+  "&item_name=" + encodeURIComponent(name) +
+  "&amount=" + price +
   "&currency_code=USD";
 
   window.open(url,"_blank");
 }
 
-// INIT
-renderProducts();
+loadProducts();
 
 </script>
 
