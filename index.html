@@ -2,50 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Elite Shop</title>
+<title>Pro Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
-  margin: 0;
   font-family: Arial;
+  margin: 0;
   background: #f5f5f5;
 }
 
-/* HEADER */
 header {
   background: #111;
   color: white;
   padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  margin: 0;
-}
-
-.cart {
-  background: #00c853;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* HERO */
-.hero {
-  background: linear-gradient(to right, #222, #444);
-  color: white;
   text-align: center;
-  padding: 60px 20px;
 }
 
-.hero h2 {
-  font-size: 35px;
-}
-
-/* PRODUCTS */
 .products {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -83,23 +56,10 @@ button {
   color: white;
   cursor: pointer;
   margin-top: 10px;
-  border-radius: 6px;
 }
 
 button:hover {
   background: #333;
-}
-
-/* CART BOX */
-.cart-box {
-  position: fixed;
-  right: 10px;
-  top: 70px;
-  background: white;
-  padding: 15px;
-  width: 250px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  display: none;
 }
 </style>
 </head>
@@ -107,94 +67,67 @@ button:hover {
 <body>
 
 <header>
-  <h1>Elite Shop</h1>
-  <div class="cart" onclick="toggleCart()">
-    Cart 🛒 (<span id="count">0</span>)
-  </div>
+  <h1>🔥 My Pro Store</h1>
+  <p>Order instantly with PayPal</p>
 </header>
 
-<div class="hero">
-  <h2>Order Your Favorite Products Online</h2>
-  <p>Click buy → we deliver</p>
-</div>
-
-<!-- PRODUCTS -->
-<div class="products">
-
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1585386959984-a41552231693">
-    <div class="card-content">
-      <h3>Headphones</h3>
-      <p class="price">$25</p>
-      <button onclick="addToCart('Headphones', 25)">Add to Cart</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30">
-    <div class="card-content">
-      <h3>Smart Watch</h3>
-      <p class="price">$40</p>
-      <button onclick="addToCart('Smart Watch', 40)">Add to Cart</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <img src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e">
-    <div class="card-content">
-      <h3>Gaming Mouse</h3>
-      <p class="price">$15</p>
-      <button onclick="addToCart('Gaming Mouse', 15)">Add to Cart</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- CART BOX -->
-<div class="cart-box" id="cartBox">
-  <h3>Your Order</h3>
-  <div id="cartItems"></div>
-  <br>
-  <button onclick="checkout()">Order via WhatsApp</button>
-</div>
+<div class="products" id="products"></div>
 
 <script>
-let cart = [];
+// ==============================
+// 👇 PRODUCTS (تو اینجا اضافه کن)
+// ==============================
+const products = [
+  {
+    name: "Gaming Headphones",
+    price: 25,
+    image: "https://images.unsplash.com/photo-1585386959984-a41552231693"
+  },
+  {
+    name: "Smart Watch",
+    price: 40,
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+  },
+  {
+    name: "Wireless Mouse",
+    price: 15,
+    image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e"
+  }
+];
 
-function addToCart(name, price) {
-  cart.push({name, price});
-  document.getElementById("count").innerText = cart.length;
-  alert(name + " added to cart");
-}
+// ==============================
+// render products
+// ==============================
+const container = document.getElementById("products");
 
-function toggleCart() {
-  let box = document.getElementById("cartBox");
-  box.style.display = box.style.display === "block" ? "none" : "block";
-  renderCart();
-}
+products.forEach(p => {
+  container.innerHTML += `
+    <div class="card">
+      <img src="${p.image}">
+      <div class="card-content">
+        <h3>${p.name}</h3>
+        <p class="price">$${p.price}</p>
 
-function renderCart() {
-  let html = "";
-  let total = 0;
+        <button onclick="buy('${p.name}', ${p.price})">
+          Buy with PayPal
+        </button>
+      </div>
+    </div>
+  `;
+});
 
-  cart.forEach(item => {
-    html += `<p>${item.name} - $${item.price}</p>`;
-    total += item.price;
-  });
+// ==============================
+// PAYPAL CHECKOUT
+// ==============================
+function buy(name, price) {
+  let businessEmail = "your-paypal-email@example.com"; // 👈 اینجا ایمیل PayPal خودت را بگذار
 
-  html += `<hr><b>Total: $${total}</b>`;
-  document.getElementById("cartItems").innerHTML = html;
-}
-
-function checkout() {
-  let message = "Hello, I want to order:%0A";
-
-  cart.forEach(item => {
-    message += "- " + item.name + " $" + item.price + "%0A";
-  });
-
-  let phone = "93700000000"; // 👈 اینجا شماره واتساپ خودت را بگذار
-  let url = "https://wa.me/" + phone + "?text=" + message;
+  let url =
+  "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick" +
+  "&business=" + businessEmail +
+  "&item_name=" + encodeURIComponent(name) +
+  "&amount=" + price +
+  "&currency_code=USD";
 
   window.open(url, "_blank");
 }
