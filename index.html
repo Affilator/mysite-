@@ -163,14 +163,9 @@ box.innerHTML += `
 <div class="card-content">
 <h3>${p.name}</h3>
 <p class="price">$${p.price}</p>
-<button class="buy-btn">Buy</button>
-</div>
-</div>
-`;
-
-});
-
-}
+<button class="buy-btn" onclick="buyProduct('${p.name}','${p.price}')">
+Buy
+</button>
 
 /* PAGES */
 window.showProducts = function(){
