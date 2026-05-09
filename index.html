@@ -157,16 +157,22 @@ data.forEach((doc)=>{
 
 let p = doc.data();
 
+
 box.innerHTML += `
 <div class="card">
 <img src="${p.image}">
 <div class="card-content">
+
 <h3>${p.name}</h3>
 <p class="price">$${p.price}</p>
+
 <button class="buy-btn" onclick="buyProduct('${p.name}','${p.price}')">
 Buy
 </button>
 
+</div>
+</div>
+`;
 /* PAGES */
 window.showProducts = function(){
 document.getElementById("main").innerHTML = `
