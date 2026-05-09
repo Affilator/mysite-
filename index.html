@@ -270,6 +270,49 @@ display:none;
 KHAN STORE © 2026
 
 </footer>
+<script type="module">
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// 🔴 اینجا Firebase خودت را بگذار
+const firebaseConfig = {
+  apiKey: "PASTE_HERE",
+  authDomain: "PASTE_HERE",
+  projectId: "PASTE_HERE",
+  appId: "PASTE_HERE"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadProducts(){
+
+  const querySnapshot = await getDocs(collection(db, "products"));
+
+  const box = document.getElementById("products");
+
+  box.innerHTML = "";
+
+  querySnapshot.forEach((doc)=>{
+    let p = doc.data();
+
+    box.innerHTML += `
+      <div class="card">
+        <img src="${p.image}">
+        <div class="card-content">
+          <h3>${p.name}</h3>
+          <p class="price">$${p.price}</p>
+          <button class="buy-btn">Buy</button>
+        </div>
+      </div>
+    `;
+  });
+
+}
+
+loadProducts();
+
+</script>
 </body>
 </html>
