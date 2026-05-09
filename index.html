@@ -209,10 +209,35 @@ alert("Product Added!");
 showProducts();
 };
 
-window.showOrders = function(){
-document.getElementById("main").innerHTML = "<h2>Orders Coming Soon</h2>";
-};
 
+window.showOrders = async function(){
+
+document.getElementById("main").innerHTML = `
+<h2>📦 Orders</h2>
+<div id="orders"></div>
+`;
+
+const box = document.getElementById("orders");
+box.innerHTML = "Loading...";
+
+const data = await getDocs(collection(db,"orders"));
+
+box.innerHTML = "";
+
+data.forEach((doc)=>{
+let o = doc.data();
+
+box.innerHTML += `
+<div class="card">
+<div class="card-content">
+<h3>${o.name}</h3>
+<p class="price">$${o.price}</p>
+<p>${o.time.toDate ? o.time.toDate() : o.time}</p>
+</div>
+</div>
+`;
+});
+};
 window.showSettings = function(){
 document.getElementById("main").innerHTML = "<h2>Settings Coming Soon</h2>";
 };
