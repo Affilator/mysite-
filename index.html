@@ -1,283 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>KHAN STORE</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
 body{
+margin:0;
+font-family:Arial;
 background:#0f0f0f;
 color:white;
 }
 
-/* NAVBAR */
-
-nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px;
-background:#111;
-position:sticky;
+/* SIDEBAR */
+#sidebar{
+position:fixed;
+left:0;
 top:0;
-z-index:100;
-}
-
-.logo{
-font-size:28px;
-font-weight:bold;
-color:#00ffae;
-}
-
-.menu{
-display:flex;
-gap:20px;
-}
-
-.menu a{
-color:white;
-text-decoration:none;
-transition:0.3s;
-}
-
-.menu a:hover{
-color:#00ffae;
-}
-
-/* HERO */
-
-.hero{
-height:70vh;
-display:flex;
-justify-content:center;
-align-items:center;
-text-align:center;
+width:220px;
+height:100%;
+background:#111;
 padding:20px;
-background:linear-gradient(to right,#111,#1c1c1c);
 }
 
-.hero-content h1{
-font-size:55px;
+#sidebar h2{
+color:#00ffae;
 margin-bottom:20px;
 }
 
-.hero-content p{
-font-size:20px;
-color:#ccc;
-margin-bottom:20px;
-}
-
-.hero button{
-padding:14px 28px;
-border:none;
-background:#00ffae;
-font-size:18px;
-border-radius:8px;
-cursor:pointer;
-transition:0.3s;
-}
-
-.hero button:hover{
-transform:scale(1.05);
-}
-
-/* CATEGORIES */
-
-.categories{
-padding:40px 20px;
-}
-
-.categories h2{
-margin-bottom:20px;
-font-size:32px;
-}
-
-.cat-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:20px;
-}
-
-.cat{
-background:#1a1a1a;
-padding:30px;
-border-radius:12px;
-text-align:center;
-transition:0.3s;
-cursor:pointer;
-}
-
-.cat:hover{
-transform:translateY(-5px);
+#sidebar button{
+width:100%;
+padding:10px;
+margin:8px 0;
 background:#222;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:6px;
+}
+
+#sidebar button:hover{
+background:#00ffae;
+color:black;
+}
+
+/* MAIN */
+#main{
+margin-left:240px;
+padding:20px;
 }
 
 /* PRODUCTS */
-
-.products{
-padding:40px 20px;
-}
-
-.products h2{
-margin-bottom:20px;
-font-size:32px;
-}
-
-.product-grid{
+#products{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-top:20px;
 }
 
 .card{
 background:#1a1a1a;
-border-radius:12px;
+border-radius:10px;
 overflow:hidden;
-transition:0.3s;
-}
-
-.card:hover{
-transform:translateY(-5px);
 }
 
 .card img{
 width:100%;
-height:220px;
+height:180px;
 object-fit:cover;
 }
 
 .card-content{
-padding:15px;
+padding:10px;
 }
 
 .price{
 color:#00ffae;
-font-size:20px;
-margin:10px 0;
 }
 
 .buy-btn{
 width:100%;
-padding:12px;
-background:#00ffae;
+padding:10px;
 border:none;
-font-size:16px;
-border-radius:8px;
+background:#00ffae;
 cursor:pointer;
 }
 
-/* FOOTER */
-
-footer{
-padding:30px;
-text-align:center;
-background:#111;
-margin-top:50px;
-color:#888;
-}
-
-/* MOBILE */
-
-@media(max-width:768px){
-
-.hero-content h1{
-font-size:38px;
-}
-
-.menu{
-display:none;
-}
-
+input{
+width:100%;
+padding:10px;
+margin:5px 0;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-
-<nav>
-
-<div class="logo">KHAN STORE</div>
-
-<div class="menu">
-<a href="#">Home</a>
-<a href="#">Products</a>
-<a href="#">Categories</a>
-<a href="#">Contact</a>
+<!-- SIDEBAR -->
+<div id="sidebar">
+<h2>KHAN PANEL</h2>
+<button onclick="showProducts()">🛍 Products</button>
+<button onclick="showAdmin()">➕ Add Product</button>
+<button onclick="showOrders()">📦 Orders</button>
+<button onclick="showSettings()">⚙️ Settings</button>
 </div>
 
-</nav>
-
-<!-- HERO -->
-
-<section class="hero">
-
-<div class="hero-content">
-
-<h1>WELCOME TO KHAN STORE</h1>
-
-<p>Professional modern online store powered by Firebase</p>
-
-<button>SHOP NOW</button>
-
+<!-- MAIN -->
+<div id="main">
+<h1>Welcome to KHAN STORE</h1>
+<div id="products"></div>
 </div>
 
-</section>
-
-<!-- CATEGORIES -->
-
-<section class="categories">
-
-<h2>Categories</h2>
-
-<div class="cat-grid">
-
-<div class="cat">📚 Books</div>
-<div class="cat">👕 Clothes</div>
-<div class="cat">🎧 Electronics</div>
-<div class="cat">⌚ Watches</div>
-
-</div>
-
-</section>
-
-<!-- PRODUCTS -->
-
-<section class="products">
-
-<h2>Featured Products</h2>
-
-<div class="product-grid" id="products">
-
-</div>
-
-</section>
-
-<footer>
-
-KHAN STORE © 2026
-
-</footer>
+<!-- FIREBASE -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔴 اینجا Firebase خودت را بگذار
-
-  const firebaseConfig = {
+/* 🔥 YOUR FIREBASE CONFIG */
+const firebaseConfig = {
   apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
   authDomain: "my-store-7ef38.firebaseapp.com",
   projectId: "my-store-7ef38",
@@ -290,33 +136,79 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* LOAD PRODUCTS */
 async function loadProducts(){
 
-  const querySnapshot = await getDocs(collection(db, "products"));
+const box = document.getElementById("products");
+box.innerHTML = "";
 
-  const box = document.getElementById("products");
+const data = await getDocs(collection(db,"products"));
 
-  box.innerHTML = "";
+data.forEach((doc)=>{
 
-  querySnapshot.forEach((doc)=>{
-    let p = doc.data();
+let p = doc.data();
 
-    box.innerHTML += `
-      <div class="card">
-        <img src="${p.image}">
-        <div class="card-content">
-          <h3>${p.name}</h3>
-          <p class="price">$${p.price}</p>
-          <button class="buy-btn">Buy</button>
-        </div>
-      </div>
-    `;
-  });
+box.innerHTML += `
+<div class="card">
+<img src="${p.image}">
+<div class="card-content">
+<h3>${p.name}</h3>
+<p class="price">$${p.price}</p>
+<button class="buy-btn">Buy</button>
+</div>
+</div>
+`;
+
+});
 
 }
 
+/* PAGES */
+window.showProducts = function(){
+document.getElementById("main").innerHTML = `
+<h2>Products</h2>
+<div id="products"></div>
+`;
 loadProducts();
+};
+
+window.showAdmin = function(){
+document.getElementById("main").innerHTML = `
+<h2>Add Product</h2>
+
+<input id="name" placeholder="Name">
+<input id="price" placeholder="Price">
+<input id="image" placeholder="Image URL">
+
+<button onclick="addProduct()">Save</button>
+`;
+};
+
+window.addProduct = async function(){
+
+await addDoc(collection(db,"products"),{
+name: document.getElementById("name").value,
+price: document.getElementById("price").value,
+image: document.getElementById("image").value
+});
+
+alert("Product Added!");
+showProducts();
+
+};
+
+window.showOrders = function(){
+document.getElementById("main").innerHTML = "<h2>Orders Coming Soon</h2>";
+};
+
+window.showSettings = function(){
+document.getElementById("main").innerHTML = "<h2>Settings Coming Soon</h2>";
+};
+
+/* START */
+showProducts();
 
 </script>
+
 </body>
 </html>
