@@ -2,133 +2,274 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Firebase Store</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>KHAN STORE</title>
+
 <style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#f4f4f4;
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
 }
 
-header {
-  background:#111;
-  color:white;
-  padding:15px;
-  text-align:center;
+body{
+background:#0f0f0f;
+color:white;
 }
 
-.products {
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
-  gap:15px;
-  padding:20px;
+/* NAVBAR */
+
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px;
+background:#111;
+position:sticky;
+top:0;
+z-index:100;
 }
 
-.card {
-  background:white;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#00ffae;
 }
 
-.card img {
-  width:100%;
-  height:160px;
-  object-fit:cover;
+.menu{
+display:flex;
+gap:20px;
 }
 
-.card-content {
-  padding:10px;
+.menu a{
+color:white;
+text-decoration:none;
+transition:0.3s;
 }
 
-.price {
-  color:green;
-  font-weight:bold;
+.menu a:hover{
+color:#00ffae;
 }
 
-button {
-  width:100%;
-  padding:10px;
-  background:black;
-  color:white;
-  border:none;
-  cursor:pointer;
+/* HERO */
+
+.hero{
+height:70vh;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:20px;
+background:linear-gradient(to right,#111,#1c1c1c);
 }
-button:hover {
-  background:#333;
+
+.hero-content h1{
+font-size:55px;
+margin-bottom:20px;
 }
+
+.hero-content p{
+font-size:20px;
+color:#ccc;
+margin-bottom:20px;
+}
+
+.hero button{
+padding:14px 28px;
+border:none;
+background:#00ffae;
+font-size:18px;
+border-radius:8px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.hero button:hover{
+transform:scale(1.05);
+}
+
+/* CATEGORIES */
+
+.categories{
+padding:40px 20px;
+}
+
+.categories h2{
+margin-bottom:20px;
+font-size:32px;
+}
+
+.cat-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+}
+
+.cat{
+background:#1a1a1a;
+padding:30px;
+border-radius:12px;
+text-align:center;
+transition:0.3s;
+cursor:pointer;
+}
+
+.cat:hover{
+transform:translateY(-5px);
+background:#222;
+}
+
+/* PRODUCTS */
+
+.products{
+padding:40px 20px;
+}
+
+.products h2{
+margin-bottom:20px;
+font-size:32px;
+}
+
+.product-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1a1a1a;
+border-radius:12px;
+overflow:hidden;
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+}
+
+.card-content{
+padding:15px;
+}
+
+.price{
+color:#00ffae;
+font-size:20px;
+margin:10px 0;
+}
+
+.buy-btn{
+width:100%;
+padding:12px;
+background:#00ffae;
+border:none;
+font-size:16px;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* FOOTER */
+
+footer{
+padding:30px;
+text-align:center;
+background:#111;
+margin-top:50px;
+color:#888;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.hero-content h1{
+font-size:38px;
+}
+
+.menu{
+display:none;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
-<header>
-<h2>🔥 My Firebase Store</h2>
-</header>
+<!-- NAVBAR -->
 
-<div class="products" id="products"></div>
+<nav>
 
-<script type="module">
+<div class="logo">KHAN STORE</div>
 
-// ================= FIREBASE =================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<div class="menu">
+<a href="#">Home</a>
+<a href="#">Products</a>
+<a href="#">Categories</a>
+<a href="#">Contact</a>
+</div>
 
-// 🔴 YOUR FIREBASE CONFIG (paste yours here)
-const firebaseConfig = {
-  apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
-  authDomain: "my-store-7ef38.firebaseapp.com",
-  projectId: "my-store-7ef38",
-  storageBucket: "my-store-7ef38.appspot.com",
-  messagingSenderId: "732533225869",
-  appId: "1:732533225869:web:3e2f22fb76dcbe556fa5c4"
-};
+</nav>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<!-- HERO -->
 
-// ================= LOAD PRODUCTS =================
-async function loadProducts() {
-  const querySnapshot = await getDocs(collection(db, "products"));
+<section class="hero">
 
-  let box = document.getElementById("products");
-  box.innerHTML = "";
+<div class="hero-content">
 
-  querySnapshot.forEach((doc) => {
-    let p = doc.data();
+<h1>WELCOME TO KHAN STORE</h1>
 
-    box.innerHTML += `
-      <div class="card">
-        <img src="${p.image}">
-        <div class="card-content">
-          <h3>${p.name}</h3>
-          <p class="price">$${p.price}</p>
-          <button onclick="buy('${p.name}',${p.price})">Buy</button>
-        </div>
-      </div>
-    `;
-  });
-}
+<p>Professional modern online store powered by Firebase</p>
 
-// ================= PAYPAL BUTTON =================
-window.buy = function(name, price) {
-  let email = "your-paypal-email@example.com";
+<button>SHOP NOW</button>
 
-  let url =
-  "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick" +
-  "&business=" + email +
-  "&item_name=" + encodeURIComponent(name) +
-  "&amount=" + price +
-  "&currency_code=USD";
+</div>
 
-  window.open(url, "_blank");
-};
+</section>
 
-loadProducts();
+<!-- CATEGORIES -->
 
-</script>
+<section class="categories">
+
+<h2>Categories</h2>
+
+<div class="cat-grid">
+
+<div class="cat">📚 Books</div>
+<div class="cat">👕 Clothes</div>
+<div class="cat">🎧 Electronics</div>
+<div class="cat">⌚ Watches</div>
+
+</div>
+
+</section>
+
+<!-- PRODUCTS -->
+
+<section class="products">
+
+<h2>Featured Products</h2>
+
+<div class="product-grid" id="products">
+
+</div>
+
+</section>
+
+<footer>
+
+KHAN STORE © 2026
+
+</footer>
 
 </body>
 </html>
