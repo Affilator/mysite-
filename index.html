@@ -121,7 +121,16 @@ margin:5px 0;
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+window.buyProduct = async function(name, price){
 
+await addDoc(collection(db,"orders"),{
+name: name,
+price: price,
+time: new Date()
+});
+
+alert("Order Saved!");
+};
 /* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
