@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Step 1 Store</title>
+<title>Step 2 Store</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#0b1220;color:white}
@@ -18,11 +18,12 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <body>
 
 <header>
-<h3>Pro Store (Step 1)</h3>
+<h3>Store Step 2</h3>
 <div>
 <button onclick="show('login')">Login</button>
-<button onclick="goShop()">Shop</button>
-<button onclick="goAdmin()">Admin</button>
+<button onclick="show('shop')">Shop</button>
+<button onclick="show('orders')">Orders</button>
+<button onclick="show('admin')">Admin</button>
 </div>
 </header>
 
@@ -31,7 +32,7 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <!-- LOGIN -->
 <div id="login">
 <div class="card">
-<h3>Login / Signup</h3>
+<h3>Login</h3>
 <input id="email" placeholder="Email">
 <input id="pass" placeholder="Password">
 <button onclick="signup()">Signup</button>
@@ -41,8 +42,14 @@ button{background:#3b82f6;color:white;cursor:pointer}
 
 <!-- SHOP -->
 <div id="shop" class="hidden">
-<h2>Shop</h2>
+<h2>Products</h2>
 <div id="products"></div>
+</div>
+
+<!-- ORDERS (CUSTOMER) -->
+<div id="orders" class="hidden">
+<h2>My Orders</h2>
+<div id="myOrders"></div>
 </div>
 
 <!-- ADMIN -->
@@ -56,8 +63,8 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <button onclick="addProduct()">Add</button>
 </div>
 
-<div id="adminProducts"></div>
-
+<h3>All Orders</h3>
+<div id="adminOrders"></div>
 </div>
 
 </div>
@@ -66,10 +73,8 @@ button{background:#3b82f6;color:white;cursor:pointer}
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-onAuthStateChanged
+getAuth, createUserWithEmailAndPassword,
+signInWithEmailAndPassword, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -94,7 +99,7 @@ let role="customer";
 
 /* NAV */
 window.show=(v)=>{
-["login","shop","admin"].forEach(i=>document.getElementById(i).classList.add("hidden"));
+["login","shop","orders","admin"].forEach(i=>document.getElementById(i).classList.add("hidden"));
 document.getElementById(v).classList.remove("hidden");
 }
 
@@ -107,16 +112,18 @@ window.login=()=>{
 signInWithEmailAndPassword(auth,email.value,pass.value);
 }
 
-/* ROLE SYSTEM */
+/* ROLE */
 onAuthStateChanged(auth,(user)=>{
 if(user){
 role = user.email==="admin@gmail.com" ? "admin" : "customer";
-show(role==="admin"?"admin":"shop");
+show("shop");
 loadProducts();
+loadOrders();
+loadAdminOrders();
 }
 });
 
-/* ADD PRODUCT (ADMIN ONLY) */
+/* ADD PRODUCT */
 window.addProduct=()=>{
 if(role!=="admin")return;
 
@@ -136,17 +143,62 @@ for(let id in data){
 html+=`
 <div class="card">
 <b>${data[id].name}</b> - $${data[id].price}
+<button onclick="buy('${data[id].name}','${data[id].price}')">Buy</button>
 </div>`;
 }
 
 document.getElementById("products").innerHTML=html;
-document.getElementById("adminProducts").innerHTML=html;
 });
 }
 
-/* NAV SHORTCUTS */
-window.goShop=()=>show("shop");
-window.goAdmin=()=>show("admin");
+/* BUY → CREATE ORDER */
+window.buy=(name,price)=>{
+let order=push(ref(db,"orders"));
+set(order,{
+product:name,
+price:price,
+user:auth.currentUser.email,
+status:"pending"
+});
+}
+
+/* CUSTOMER ORDERS */
+function loadOrders(){
+onValue(ref(db,"orders"),snap=>{
+let data=snap.val();
+let html="";
+
+for(let id in data){
+if(data[id].user===auth.currentUser.email){
+html+=`
+<div class="card">
+${data[id].product} - $${data[id].price}<br>
+Status: ${data[id].status}
+</div>`;
+}
+}
+
+document.getElementById("myOrders").innerHTML=html;
+});
+}
+
+/* ADMIN ORDERS */
+function loadAdminOrders(){
+onValue(ref(db,"orders"),snap=>{
+let data=snap.val();
+let html="";
+
+for(let id in data){
+html+=`
+<div class="card">
+${data[id].product} - ${data[id].user}<br>
+Status: ${data[id].status}
+</div>`;
+}
+
+document.getElementById("adminOrders").innerHTML=html;
+});
+}
 
 show("login");
 
