@@ -1,249 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KHAN STORE</title>
-
+<title>Simple Store</title>
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0f0f0f;
-color:white;
-}
+body { font-family: Arial; margin: 0; background:#f4f4f4; }
 
-/* SIDEBAR */
-#sidebar{
-position:fixed;
-left:0;
-top:0;
-width:220px;
-height:100%;
-background:#111;
-padding:20px;
-}
+header { background:#222; color:white; padding:10px; display:flex; justify-content:space-between; }
 
-#sidebar h2{
-color:#00ffae;
-margin-bottom:20px;
-}
+.container { padding:20px; }
 
-#sidebar button{
-width:100%;
-padding:10px;
-margin:8px 0;
-background:#222;
-color:white;
-border:none;
-cursor:pointer;
-border-radius:6px;
-}
+.hidden { display:none; }
 
-#sidebar button:hover{
-background:#00ffae;
-color:black;
-}
+.card { background:white; padding:10px; margin:10px; border-radius:8px; }
 
-/* MAIN */
-#main{
-margin-left:240px;
-padding:20px;
-}
+button { padding:5px 10px; margin-top:5px; cursor:pointer; }
 
-/* PRODUCTS */
-#products{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-margin-top:20px;
-}
+input { padding:5px; margin:5px; width:90%; }
 
-.card{
-background:#1a1a1a;
-border-radius:10px;
-overflow:hidden;
-}
+#adminPanel { background:#fff; padding:15px; margin-top:10px; }
 
-.card img{
-width:100%;
-height:180px;
-object-fit:cover;
-}
-
-.card-content{
-padding:10px;
-}
-
-.price{
-color:#00ffae;
-}
-
-.buy-btn{
-width:100%;
-padding:10px;
-border:none;
-background:#00ffae;
-cursor:pointer;
-}
-
-input{
-width:100%;
-padding:10px;
-margin:5px 0;
-}
 </style>
-
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
-<div id="sidebar">
-<h2>KHAN PANEL</h2>
-<button onclick="showProducts()">🛍 Products</button>
-<button onclick="showAdmin()">➕ Add Product</button>
-<button onclick="showOrders()">📦 Orders</button>
-<button onclick="showSettings()">⚙️ Settings</button>
+<header>
+<h3>My Store</h3>
+<div>
+<button onclick="showShop()">Shop</button>
+<button onclick="showAdmin()">Admin</button>
+</div>
+</header>
+
+<div class="container">
+
+<!-- SHOP -->
+<div id="shop">
+<h2>Products</h2>
+<div id="productList"></div>
+
+<h3>Cart</h3>
+<div id="cart"></div>
 </div>
 
-<!-- MAIN -->
-<div id="main">
-<h1>Welcome to KHAN STORE</h1>
-<div id="products"></div>
+<!-- ADMIN -->
+<div id="admin" class="hidden">
+<h2>Admin Dashboard</h2>
+
+<div id="adminPanel">
+<h3>Add Product</h3>
+<input id="pname" placeholder="Product Name">
+<input id="pprice" placeholder="Price">
+<button onclick="addProduct()">Add Product</button>
 </div>
 
-<!-- FIREBASE + JS -->
-<script type="module">
+<h3>All Products</h3>
+<div id="adminProducts"></div>
+</div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+</div>
 
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
-  authDomain: "my-store-7ef38.firebaseapp.com",
-  projectId: "my-store-7ef38",
-  storageBucket: "my-store-7ef38.firebasestorage.app",
-  messagingSenderId: "732533225869",
-  appId: "1:732533225869:web:74a9cb860d566e406fa5c4",
-  measurementId: "G-4BQ5TX5S19"
-};
+<script>
 
-/* INIT */
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let products = [];
+let cart = [];
 
-/* BUY PRODUCT */
-window.buyProduct = async function(name, price){
+// Show shop
+function showShop(){
+document.getElementById("shop").classList.remove("hidden");
+document.getElementById("admin").classList.add("hidden");
+renderProducts();
+renderCart();
+}
 
-await addDoc(collection(db,"orders"),{
-name,
-price,
-time: new Date()
-});
+// Show admin
+function showAdmin(){
+document.getElementById("shop").classList.add("hidden");
+document.getElementById("admin").classList.remove("hidden");
+renderAdmin();
+}
 
-alert("Order Saved!");
-};
+// Add product
+function addProduct(){
+let name = document.getElementById("pname").value;
+let price = document.getElementById("pprice").value;
 
-/* LOAD PRODUCTS */
-async function loadProducts(){
+if(name && price){
+products.push({name, price});
+document.getElementById("pname").value = "";
+document.getElementById("pprice").value = "";
+renderAdmin();
+renderProducts();
+}
+}
 
-const box = document.getElementById("products");
-box.innerHTML = "";
+// Render products
+function renderProducts(){
+let list = document.getElementById("productList");
+list.innerHTML = "";
 
-const data = await getDocs(collection(db,"products"));
-
-data.forEach((doc)=>{
-let p = doc.data();
-
-box.innerHTML += `
+products.forEach((p, i)=>{
+list.innerHTML += `
 <div class="card">
-<img src="${p.image}">
-<div class="card-content">
-
-<h3>${p.name}</h3>
-<p class="price">$${p.price}</p>
-
-<button class="buy-btn" onclick="buyProduct('${p.name}','${p.price}')">
-Buy
-</button>
-
-</div>
+<b>${p.name}</b><br>
+Price: $${p.price}<br>
+<button onclick="addToCart(${i})">Add to Cart</button>
 </div>
 `;
 });
 }
 
-/* PAGES */
-window.showProducts = function(){
-document.getElementById("main").innerHTML = `
-<h2>Products</h2>
-<div id="products"></div>
-`;
-loadProducts();
-};
+// Add to cart
+function addToCart(i){
+cart.push(products[i]);
+renderCart();
+}
 
-window.showAdmin = function(){
-document.getElementById("main").innerHTML = `
-<h2>Add Product</h2>
+// Render cart
+function renderCart(){
+let c = document.getElementById("cart");
+c.innerHTML = "";
 
-<input id="name" placeholder="Name">
-<input id="price" placeholder="Price">
-<input id="image" placeholder="Image URL">
-
-<button onclick="addProduct()">Save</button>
-`;
-};
-
-window.addProduct = async function(){
-
-await addDoc(collection(db,"products"),{
-name: document.getElementById("name").value,
-price: document.getElementById("price").value,
-image: document.getElementById("image").value
+cart.forEach((p)=>{
+c.innerHTML += `<div class="card">${p.name} - $${p.price}</div>`;
 });
+}
 
-alert("Product Added!");
-showProducts();
-};
+// Admin products
+function renderAdmin(){
+let a = document.getElementById("adminProducts");
+a.innerHTML = "";
 
-
-window.showOrders = async function(){
-
-document.getElementById("main").innerHTML = `
-<h2>📦 Orders</h2>
-<div id="orders"></div>
-`;
-
-const box = document.getElementById("orders");
-box.innerHTML = "Loading...";
-
-const data = await getDocs(collection(db,"orders"));
-
-box.innerHTML = "";
-
-data.forEach((doc)=>{
-let o = doc.data();
-
-box.innerHTML += `
-<div class="card">
-<div class="card-content">
-<h3>${o.name}</h3>
-<p class="price">$${o.price}</p>
-<p>${o.time.toDate ? o.time.toDate() : o.time}</p>
-</div>
-</div>
-`;
+products.forEach((p)=>{
+a.innerHTML += `<div class="card">${p.name} - $${p.price}</div>`;
 });
-};
-window.showSettings = function(){
-document.getElementById("main").innerHTML = "<h2>Settings Coming Soon</h2>";
-};
+}
 
-/* START */
-showProducts();
+showShop();
 
 </script>
 
