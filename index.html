@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Step 3 Store</title>
+<title>Step 4 Store</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#0b1220;color:white}
@@ -12,21 +12,19 @@ header{background:#111827;padding:15px;display:flex;justify-content:space-betwee
 input,button,select{width:95%;padding:10px;margin:5px 0;border-radius:8px;border:none}
 button{background:#3b82f6;color:white;cursor:pointer}
 .hidden{display:none}
-.chatBox{max-height:200px;overflow:auto;background:#111827;padding:10px;border-radius:8px}
-.msg{margin:5px 0}
-.me{color:#4ade80}
-.adminc{color:#fbbf24}
+.badge{background:red;padding:3px 8px;border-radius:20px;font-size:12px}
+.small{font-size:12px;color:#aaa}
 </style>
 </head>
 
 <body>
 
 <header>
-<h3>Store Step 3 (Chat System)</h3>
+<h3>Step 4 Store</h3>
 <div>
 <button onclick="show('login')">Login</button>
 <button onclick="show('shop')">Shop</button>
-<button onclick="show('orders')">Orders</button>
+<button onclick="show('orders')">Orders <span id="notif" class="badge hidden">!</span></button>
 <button onclick="show('admin')">Admin</button>
 </div>
 </header>
@@ -59,7 +57,7 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <!-- CHAT -->
 <div id="chat" class="hidden">
 <h2>Order Chat</h2>
-<div class="chatBox" id="chatBox"></div>
+<div id="chatBox" class="card"></div>
 <input id="msg" placeholder="Message">
 <button onclick="sendMsg()">Send</button>
 <button onclick="back()">Back</button>
@@ -76,7 +74,7 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <button onclick="addProduct()">Add</button>
 </div>
 
-<h3>All Orders</h3>
+<h3>Orders</h3>
 <div id="adminOrders"></div>
 </div>
 
@@ -119,8 +117,6 @@ if(el)el.classList.add("hidden");
 });
 document.getElementById(v).classList.remove("hidden");
 }
-
-window.back=()=>show("orders");
 
 /* AUTH */
 window.signup=()=>{
@@ -166,10 +162,9 @@ let o=push(ref(db,"orders"));
 set(o,{
 product:name,
 user:auth.currentUser.email,
-status:"pending"
+status:"pending",
+time:Date.now()
 });
-
-alert("Order created");
 }
 
 /* ORDERS */
@@ -177,13 +172,18 @@ function loadOrders(){
 onValue(ref(db,"orders"),snap=>{
 let data=snap.val();
 let html="";
+let hasUpdate=false;
 
 for(let id in data){
 if(data[id].user===auth.currentUser.email){
+
+if(data[id].status!=="pending") hasUpdate=true;
+
 html+=`
 <div class="card">
-${data[id].product}<br>
-Status: ${data[id].status}
+<b>${data[id].product}</b><br>
+Status: ${data[id].status}<br>
+<span class="small">${new Date(data[id].time).toLocaleString()}</span>
 <br>
 <button onclick="openChat('${id}')">Chat</button>
 </div>`;
@@ -191,10 +191,14 @@ Status: ${data[id].status}
 }
 
 document.getElementById("myOrders").innerHTML=html;
+
+if(hasUpdate){
+document.getElementById("notif").classList.remove("hidden");
+}
 });
 }
 
-/* CHAT OPEN */
+/* CHAT */
 window.openChat=(id)=>{
 currentOrder=id;
 show("chat");
@@ -216,7 +220,7 @@ document.getElementById("chatBox").innerHTML=html;
 });
 }
 
-/* SEND MESSAGE */
+/* SEND */
 window.sendMsg=()=>{
 push(ref(db,"messages/"+currentOrder),{
 text:msg.value,
@@ -244,15 +248,29 @@ let html="";
 for(let id in data){
 html+=`
 <div class="card">
-${data[id].product}<br>
-${data[id].user}<br>
-Status: ${data[id].status}
+<b>${data[id].product}</b><br>
+User: ${data[id].user}<br>
+
+<select onchange="updateStatus('${id}',this.value)">
+<option>pending</option>
+<option>processing</option>
+<option>shipped</option>
+<option>delivered</option>
+</select>
+
 </div>`;
 }
 
 document.getElementById("adminOrders").innerHTML=html;
 });
 }
+
+/* UPDATE STATUS */
+window.updateStatus=(id,status)=>{
+update(ref(db,"orders/"+id),{status});
+}
+
+show("login");
 
 </script>
 
