@@ -1,142 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Simple Store</title>
+<title>Step 1 Store</title>
+
 <style>
-body { font-family: Arial; margin: 0; background:#f4f4f4; }
-
-header { background:#222; color:white; padding:10px; display:flex; justify-content:space-between; }
-
-.container { padding:20px; }
-
-.hidden { display:none; }
-
-.card { background:white; padding:10px; margin:10px; border-radius:8px; }
-
-button { padding:5px 10px; margin-top:5px; cursor:pointer; }
-
-input { padding:5px; margin:5px; width:90%; }
-
-#adminPanel { background:#fff; padding:15px; margin-top:10px; }
-
+body{margin:0;font-family:Arial;background:#0b1220;color:white}
+header{background:#111827;padding:15px;display:flex;justify-content:space-between}
+.container{padding:20px}
+.card{background:#1f2937;padding:15px;margin:10px 0;border-radius:12px}
+input,button{width:95%;padding:10px;margin:5px 0;border-radius:8px;border:none}
+button{background:#3b82f6;color:white;cursor:pointer}
+.hidden{display:none}
 </style>
 </head>
+
 <body>
 
 <header>
-<h3>My Store</h3>
+<h3>Pro Store (Step 1)</h3>
 <div>
-<button onclick="showShop()">Shop</button>
-<button onclick="showAdmin()">Admin</button>
+<button onclick="show('login')">Login</button>
+<button onclick="goShop()">Shop</button>
+<button onclick="goAdmin()">Admin</button>
 </div>
 </header>
 
 <div class="container">
 
-<!-- SHOP -->
-<div id="shop">
-<h2>Products</h2>
-<div id="productList"></div>
+<!-- LOGIN -->
+<div id="login">
+<div class="card">
+<h3>Login / Signup</h3>
+<input id="email" placeholder="Email">
+<input id="pass" placeholder="Password">
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+</div>
+</div>
 
-<h3>Cart</h3>
-<div id="cart"></div>
+<!-- SHOP -->
+<div id="shop" class="hidden">
+<h2>Shop</h2>
+<div id="products"></div>
 </div>
 
 <!-- ADMIN -->
 <div id="admin" class="hidden">
-<h2>Admin Dashboard</h2>
+<h2>Admin Panel</h2>
 
-<div id="adminPanel">
-<h3>Add Product</h3>
-<input id="pname" placeholder="Product Name">
-<input id="pprice" placeholder="Price">
-<button onclick="addProduct()">Add Product</button>
-</div>
-
-<h3>All Products</h3>
-<div id="adminProducts"></div>
-</div>
-
-</div>
-
-<script>
-
-let products = [];
-let cart = [];
-
-// Show shop
-function showShop(){
-document.getElementById("shop").classList.remove("hidden");
-document.getElementById("admin").classList.add("hidden");
-renderProducts();
-renderCart();
-}
-
-// Show admin
-function showAdmin(){
-document.getElementById("shop").classList.add("hidden");
-document.getElementById("admin").classList.remove("hidden");
-renderAdmin();
-}
-
-// Add product
-function addProduct(){
-let name = document.getElementById("pname").value;
-let price = document.getElementById("pprice").value;
-
-if(name && price){
-products.push({name, price});
-document.getElementById("pname").value = "";
-document.getElementById("pprice").value = "";
-renderAdmin();
-renderProducts();
-}
-}
-
-// Render products
-function renderProducts(){
-let list = document.getElementById("productList");
-list.innerHTML = "";
-
-products.forEach((p, i)=>{
-list.innerHTML += `
 <div class="card">
-<b>${p.name}</b><br>
-Price: $${p.price}<br>
-<button onclick="addToCart(${i})">Add to Cart</button>
+<h3>Add Product</h3>
+<input id="pname" placeholder="Name">
+<input id="pprice" placeholder="Price">
+<button onclick="addProduct()">Add</button>
 </div>
-`;
+
+<div id="adminProducts"></div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+getDatabase, ref, push, set, onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
+  authDomain: "my-store-7ef38.firebaseapp.com",
+  databaseURL: "https://my-store-7ef38-default-rtdb.firebaseio.com",
+  projectId: "my-store-7ef38",
+  storageBucket: "my-store-7ef38.appspot.com",
+  messagingSenderId: "732533225869",
+  appId: "1:732533225869:web:74a9cb860d566e406fa5c4"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let role="customer";
+
+/* NAV */
+window.show=(v)=>{
+["login","shop","admin"].forEach(i=>document.getElementById(i).classList.add("hidden"));
+document.getElementById(v).classList.remove("hidden");
+}
+
+/* AUTH */
+window.signup=()=>{
+createUserWithEmailAndPassword(auth,email.value,pass.value);
+}
+
+window.login=()=>{
+signInWithEmailAndPassword(auth,email.value,pass.value);
+}
+
+/* ROLE SYSTEM */
+onAuthStateChanged(auth,(user)=>{
+if(user){
+role = user.email==="admin@gmail.com" ? "admin" : "customer";
+show(role==="admin"?"admin":"shop");
+loadProducts();
+}
+});
+
+/* ADD PRODUCT (ADMIN ONLY) */
+window.addProduct=()=>{
+if(role!=="admin")return;
+
+push(ref(db,"products"),{
+name:pname.value,
+price:pprice.value
 });
 }
 
-// Add to cart
-function addToCart(i){
-cart.push(products[i]);
-renderCart();
+/* LOAD PRODUCTS */
+function loadProducts(){
+onValue(ref(db,"products"),snap=>{
+let data=snap.val();
+let html="";
+
+for(let id in data){
+html+=`
+<div class="card">
+<b>${data[id].name}</b> - $${data[id].price}
+</div>`;
 }
 
-// Render cart
-function renderCart(){
-let c = document.getElementById("cart");
-c.innerHTML = "";
-
-cart.forEach((p)=>{
-c.innerHTML += `<div class="card">${p.name} - $${p.price}</div>`;
+document.getElementById("products").innerHTML=html;
+document.getElementById("adminProducts").innerHTML=html;
 });
 }
 
-// Admin products
-function renderAdmin(){
-let a = document.getElementById("adminProducts");
-a.innerHTML = "";
+/* NAV SHORTCUTS */
+window.goShop=()=>show("shop");
+window.goAdmin=()=>show("admin");
 
-products.forEach((p)=>{
-a.innerHTML += `<div class="card">${p.name} - $${p.price}</div>`;
-});
-}
-
-showShop();
+show("login");
 
 </script>
 
