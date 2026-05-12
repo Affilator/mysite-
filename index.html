@@ -2,23 +2,27 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Step 2 Store</title>
+<title>Step 3 Store</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#0b1220;color:white}
 header{background:#111827;padding:15px;display:flex;justify-content:space-between}
 .container{padding:20px}
 .card{background:#1f2937;padding:15px;margin:10px 0;border-radius:12px}
-input,button{width:95%;padding:10px;margin:5px 0;border-radius:8px;border:none}
+input,button,select{width:95%;padding:10px;margin:5px 0;border-radius:8px;border:none}
 button{background:#3b82f6;color:white;cursor:pointer}
 .hidden{display:none}
+.chatBox{max-height:200px;overflow:auto;background:#111827;padding:10px;border-radius:8px}
+.msg{margin:5px 0}
+.me{color:#4ade80}
+.adminc{color:#fbbf24}
 </style>
 </head>
 
 <body>
 
 <header>
-<h3>Store Step 2</h3>
+<h3>Store Step 3 (Chat System)</h3>
 <div>
 <button onclick="show('login')">Login</button>
 <button onclick="show('shop')">Shop</button>
@@ -46,10 +50,19 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <div id="products"></div>
 </div>
 
-<!-- ORDERS (CUSTOMER) -->
+<!-- ORDERS -->
 <div id="orders" class="hidden">
 <h2>My Orders</h2>
 <div id="myOrders"></div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="hidden">
+<h2>Order Chat</h2>
+<div class="chatBox" id="chatBox"></div>
+<input id="msg" placeholder="Message">
+<button onclick="sendMsg()">Send</button>
+<button onclick="back()">Back</button>
 </div>
 
 <!-- ADMIN -->
@@ -78,7 +91,7 @@ signInWithEmailAndPassword, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
-getDatabase, ref, push, set, onValue
+getDatabase, ref, push, set, onValue, update
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -96,12 +109,18 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let role="customer";
+let currentOrder=null;
 
 /* NAV */
 window.show=(v)=>{
-["login","shop","orders","admin"].forEach(i=>document.getElementById(i).classList.add("hidden"));
+["login","shop","orders","admin","chat"].forEach(i=>{
+let el=document.getElementById(i);
+if(el)el.classList.add("hidden");
+});
 document.getElementById(v).classList.remove("hidden");
 }
+
+window.back=()=>show("orders");
 
 /* AUTH */
 window.signup=()=>{
@@ -123,17 +142,7 @@ loadAdminOrders();
 }
 });
 
-/* ADD PRODUCT */
-window.addProduct=()=>{
-if(role!=="admin")return;
-
-push(ref(db,"products"),{
-name:pname.value,
-price:pprice.value
-});
-}
-
-/* LOAD PRODUCTS */
+/* PRODUCTS */
 function loadProducts(){
 onValue(ref(db,"products"),snap=>{
 let data=snap.val();
@@ -143,7 +152,7 @@ for(let id in data){
 html+=`
 <div class="card">
 <b>${data[id].name}</b> - $${data[id].price}
-<button onclick="buy('${data[id].name}','${data[id].price}')">Buy</button>
+<button onclick="buy('${data[id].name}')">Buy</button>
 </div>`;
 }
 
@@ -151,18 +160,19 @@ document.getElementById("products").innerHTML=html;
 });
 }
 
-/* BUY → CREATE ORDER */
-window.buy=(name,price)=>{
-let order=push(ref(db,"orders"));
-set(order,{
+/* BUY */
+window.buy=(name)=>{
+let o=push(ref(db,"orders"));
+set(o,{
 product:name,
-price:price,
 user:auth.currentUser.email,
 status:"pending"
 });
+
+alert("Order created");
 }
 
-/* CUSTOMER ORDERS */
+/* ORDERS */
 function loadOrders(){
 onValue(ref(db,"orders"),snap=>{
 let data=snap.val();
@@ -172,13 +182,56 @@ for(let id in data){
 if(data[id].user===auth.currentUser.email){
 html+=`
 <div class="card">
-${data[id].product} - $${data[id].price}<br>
+${data[id].product}<br>
 Status: ${data[id].status}
+<br>
+<button onclick="openChat('${id}')">Chat</button>
 </div>`;
 }
 }
 
 document.getElementById("myOrders").innerHTML=html;
+});
+}
+
+/* CHAT OPEN */
+window.openChat=(id)=>{
+currentOrder=id;
+show("chat");
+loadChat();
+}
+
+/* CHAT LOAD */
+function loadChat(){
+onValue(ref(db,"messages/"+currentOrder),snap=>{
+let data=snap.val();
+let html="";
+
+for(let id in data){
+let cls=data[id].from==="admin"?"adminc":"me";
+html+=`<div class="msg ${cls}">${data[id].from}: ${data[id].text}</div>`;
+}
+
+document.getElementById("chatBox").innerHTML=html;
+});
+}
+
+/* SEND MESSAGE */
+window.sendMsg=()=>{
+push(ref(db,"messages/"+currentOrder),{
+text:msg.value,
+from:role
+});
+msg.value="";
+}
+
+/* ADMIN */
+window.addProduct=()=>{
+if(role!=="admin")return;
+
+push(ref(db,"products"),{
+name:pname.value,
+price:pprice.value
 });
 }
 
@@ -191,7 +244,8 @@ let html="";
 for(let id in data){
 html+=`
 <div class="card">
-${data[id].product} - ${data[id].user}<br>
+${data[id].product}<br>
+${data[id].user}<br>
 Status: ${data[id].status}
 </div>`;
 }
@@ -199,8 +253,6 @@ Status: ${data[id].status}
 document.getElementById("adminOrders").innerHTML=html;
 });
 }
-
-show("login");
 
 </script>
 
