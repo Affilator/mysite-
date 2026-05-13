@@ -119,9 +119,18 @@ document.getElementById(v).classList.remove("hidden");
 }
 
 /* AUTH */
-window.signup=()=>{
-createUserWithEmailAndPassword(auth,email.value,pass.value);
-}
+window.login = async () => {
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("pass").value
+    );
+    alert("Login success");
+  } catch (e) {
+    alert(e.message);
+  }
+};
 
 window.login=()=>{
 signInWithEmailAndPassword(auth,email.value,pass.value);
