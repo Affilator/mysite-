@@ -5,14 +5,51 @@
 <title>My Firebase Store</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0b1220;color:white}
-header{background:#111827;padding:15px;display:flex;justify-content:space-between}
-.container{padding:20px}
-.card{background:#1f2937;padding:15px;margin:10px 0;border-radius:12px}
-input,button{width:95%;padding:10px;margin:5px 0;border-radius:8px;border:none}
-button{background:#3b82f6;color:white;cursor:pointer}
-.hidden{display:none}
-.small{font-size:12px;color:#aaa}
+
+body{
+margin:0;
+font-family:Arial;
+background:#0b1220;
+color:white;
+}
+
+header{
+background:#111827;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+background:#1f2937;
+padding:15px;
+margin:10px 0;
+border-radius:12px;
+}
+
+input,button{
+width:95%;
+padding:10px;
+margin:5px 0;
+border:none;
+border-radius:8px;
+}
+
+button{
+background:#3b82f6;
+color:white;
+cursor:pointer;
+}
+
+.hidden{
+display:none;
+}
+
 </style>
 
 </head>
@@ -20,44 +57,72 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <body>
 
 <header>
+
 <h3>My Store</h3>
+
 <div>
 <button onclick="show('login')">Login</button>
 <button onclick="show('shop')">Shop</button>
 <button onclick="show('orders')">Orders</button>
 <button onclick="show('admin')">Admin</button>
 </div>
+
 </header>
 
 <div class="container">
 
 <!-- LOGIN -->
+
 <div id="login">
+
 <div class="card">
+
 <h3>Login / Signup</h3>
+
 <input id="email" placeholder="Email">
+
 <input id="pass" type="password" placeholder="Password">
-<button onclick="signup()">Signup</button>
-<button onclick="login()">Login</button>
+
+<button onclick="signup()">
+Signup
+</button>
+
+<button onclick="login()">
+Login
+</button>
+
 </div>
+
 </div>
 
 <!-- SHOP -->
+
 <div id="shop" class="hidden">
+
 <h2>Products</h2>
+
 <div id="products"></div>
+
 </div>
 
 <!-- ORDERS -->
+
 <div id="orders" class="hidden">
+
 <h2>My Orders</h2>
+
 <div id="myOrders"></div>
+
 </div>
 
 <!-- ADMIN -->
+
 <div id="admin" class="hidden">
+
 <h2>Admin Panel</h2>
+
 <div id="adminOrders"></div>
+
 </div>
 
 </div>
@@ -65,6 +130,7 @@ button{background:#3b82f6;color:white;cursor:pointer}
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import {
 getAuth,
 createUserWithEmailAndPassword,
@@ -81,151 +147,296 @@ onValue,
 update
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* 🔥 Firebase Config */
+import {
+getAnalytics
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+/* FIREBASE CONFIG */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
-  authDomain: "my-store-7ef38.firebaseapp.com",
-  databaseURL: "https://my-store-7ef38-default-rtdb.firebaseio.com",
-  projectId: "my-store-7ef38",
-  storageBucket: "my-store-7ef38.appspot.com",
-  messagingSenderId: "732533225869",
-  appId: "1:732533225869:web:74a9cb860d566e406fa5c4"
+
+apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
+
+authDomain: "my-store-7ef38.firebaseapp.com",
+
+databaseURL: "https://my-store-7ef38-default-rtdb.firebaseio.com",
+
+projectId: "my-store-7ef38",
+
+storageBucket: "my-store-7ef38.firebasestorage.app",
+
+messagingSenderId: "732533225869",
+
+appId: "1:732533225869:web:74a9cb860d566e406fa5c4",
+
+measurementId: "G-4BQ5TX5S19"
+
 };
 
+/* INIT */
+
 const app = initializeApp(firebaseConfig);
+
+const analytics = getAnalytics(app);
+
 const auth = getAuth(app);
+
 const db = getDatabase(app);
 
 let currentUser = null;
 
 /* NAV */
-window.show = (page) => {
+
+window.show = (page)=>{
+
 ["login","shop","orders","admin"].forEach(id=>{
-let el=document.getElementById(id);
-if(el) el.classList.add("hidden");
+
+document.getElementById(id).classList.add("hidden");
+
 });
+
 document.getElementById(page).classList.remove("hidden");
+
 };
 
 /* SIGNUP */
-window.signup = async () => {
-try{
-const email = document.getElementById("email").value;
-const pass = document.getElementById("pass").value;
 
-await createUserWithEmailAndPassword(auth,email,pass);
+window.signup = async ()=>{
+
+try{
+
+await createUserWithEmailAndPassword(
+auth,
+email.value,
+pass.value
+);
+
 alert("Account created");
-}catch(e){alert(e.message);}
+
+}catch(e){
+
+alert(e.message);
+
+}
+
 };
 
 /* LOGIN */
-window.login = async () => {
-try{
-const email = document.getElementById("email").value;
-const pass = document.getElementById("pass").value;
 
-await signInWithEmailAndPassword(auth,email,pass);
+window.login = async ()=>{
+
+try{
+
+await signInWithEmailAndPassword(
+auth,
+email.value,
+pass.value
+);
+
 alert("Login success");
-}catch(e){alert(e.message);}
+
+}catch(e){
+
+alert(e.message);
+
+}
+
 };
 
 /* AUTH */
+
 onAuthStateChanged(auth,(user)=>{
+
 if(user){
-currentUser=user;
+
+currentUser = user;
+
 show("shop");
+
 loadProducts();
+
 loadOrders();
+
 loadAdminOrders();
+
 }else{
+
 show("login");
+
 }
+
 });
 
-/* PRODUCTS */
+/* LOAD PRODUCTS */
+
 function loadProducts(){
+
 onValue(ref(db,"products"),(snap)=>{
-let data=snap.val();
-let html="";
+
+let data = snap.val();
+
+let html = "";
 
 if(data){
+
 for(let id in data){
-html+=`
+
+let p = data[id];
+
+html += `
+
 <div class="card">
-<b>${data[id].name}</b><br>
-Price: $${data[id].price}
-<button onclick="buy('${data[id].name}')">Buy</button>
-</div>`;
-}
-}else{
-html="<p>No products</p>";
+
+<b>${p.name}</b><br>
+
+Price: $${p.price}
+
+<br><br>
+
+<button onclick="buy('${p.name}')">
+
+Buy
+
+</button>
+
+</div>
+
+`;
+
 }
 
-document.getElementById("products").innerHTML=html;
+}else{
+
+html = "<p>No products</p>";
+
+}
+
+document.getElementById("products").innerHTML = html;
+
 });
+
 }
 
 /* BUY */
-window.buy = (name) => {
-let o = push(ref(db,"orders"));
-set(o,{
+
+window.buy = (name)=>{
+
+if(!currentUser) return;
+
+let order = push(ref(db,"orders"));
+
+set(order,{
+
 product:name,
+
 user:currentUser.email,
+
 status:"pending",
+
 time:Date.now()
+
 });
+
 alert("Order placed");
+
 };
 
-/* ORDERS */
+/* MY ORDERS */
+
 function loadOrders(){
+
 onValue(ref(db,"orders"),(snap)=>{
-let data=snap.val();
-let html="";
+
+let data = snap.val();
+
+let html = "";
 
 if(data){
+
 for(let id in data){
-if(data[id].user===currentUser.email){
-html+=`
+
+if(data[id].user === currentUser.email){
+
+html += `
+
 <div class="card">
+
 <b>${data[id].product}</b><br>
+
 Status: ${data[id].status}
-</div>`;
-}
-}
+
+</div>
+
+`;
+
 }
 
-document.getElementById("myOrders").innerHTML=html;
+}
+
+}
+
+document.getElementById("myOrders").innerHTML = html;
+
 });
+
 }
 
-/* ADMIN */
+/* ADMIN ORDERS */
+
 function loadAdminOrders(){
+
 onValue(ref(db,"orders"),(snap)=>{
-let data=snap.val();
-let html="";
+
+let data = snap.val();
+
+let html = "";
 
 if(data){
+
 for(let id in data){
-html+=`
+
+html += `
+
 <div class="card">
-<b>${data[id].user}</b><br>
-${data[id].product}<br>
-Status: ${data[id].status}<br>
-<button onclick="updateOrder('${id}','approved')">Approve</button>
-</div>`;
-}
+
+<b>User:</b> ${data[id].user}<br>
+
+<b>Product:</b> ${data[id].product}<br>
+
+<b>Status:</b> ${data[id].status}
+
+<br><br>
+
+<button onclick="updateOrder('${id}','approved')">
+
+Approve
+
+</button>
+
+</div>
+
+`;
+
 }
 
-document.getElementById("adminOrders").innerHTML=html;
+}
+
+document.getElementById("adminOrders").innerHTML = html;
+
 });
+
 }
 
-/* UPDATE */
-window.updateOrder = (id,status) => {
+/* UPDATE ORDER */
+
+window.updateOrder = (id,status)=>{
+
 update(ref(db,"orders/"+id),{
+
 status:status
+
 });
+
 };
 
 </script>
