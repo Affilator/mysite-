@@ -1,444 +1,324 @@
 <!DOCTYPE html>
-<html>
+<html lang="ps" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>My Firebase Store</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>افغان لوکس سټور - مجهز سیسټم</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #2ecc71;
+            --admin-color: #e67e22;
+            --light: #f5f6fa;
+            --dark: #333;
+        }
 
-<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); }
+        
+        /* مینو او هیدر */
+        header { background-color: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo { font-size: 24px; font-weight: bold; }
+        .nav-links button { background: transparent; color: white; border: 1px solid white; padding: 8px 16px; cursor: pointer; border-radius: 4px; margin-right: 10px; transition: 0.3s; }
+        .nav-links button:hover { background: white; color: var(--primary); }
+        .nav-links .admin-btn { background: var(--admin-color); border: none; }
+        .nav-links .admin-btn:hover { background: #d35400; color: white; }
 
-body{
-margin:0;
-font-family:Arial;
-background:#0b1220;
-color:white;
-}
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .page { display: none; }
+        .active { display: block; }
 
-header{
-background:#111827;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+        /* د مشتري برخه */
+        .hero { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; padding: 40px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 220px; object-fit: cover; }
+        .product-info { padding: 15px; }
+        .product-title { font-size: 18px; margin-bottom: 10px; font-weight: bold; }
+        .product-price { color: var(--accent); font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .buy-btn { background: var(--accent); color: white; border: none; width: 100%; padding: 12px; font-size: 16px; cursor: pointer; transition: 0.2s; font-weight: bold; }
+        .buy-btn:hover { background: #27ae60; }
 
-.container{
-padding:20px;
-}
+        /* د پیرودلو کارټ (Cart) */
+        .cart-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; position: relative; top: -10px; }
+        .cart-item { display: flex; justify-content: space-between; background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; align-items: center; }
+        .remove-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
 
-.card{
-background:#1f2937;
-padding:15px;
-margin:10px 0;
-border-radius:12px;
-}
+        /* د اډمین ډشبورډ */
+        .admin-dashboard { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .admin-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        .action-btn { background: var(--admin-color); color: white; border: none; padding: 12px 20px; width: 100%; cursor: pointer; border-radius: 4px; font-size: 16px; font-weight: bold; }
+        .action-btn:hover { background: #d35400; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #34495e; color: white; padding: 20px; border-radius: 6px; text-align: center; }
+        .stat-box h3 { font-size: 24px; color: var(--accent); }
 
-input,button{
-width:95%;
-padding:10px;
-margin:5px 0;
-border:none;
-border-radius:8px;
-}
-
-button{
-background:#3b82f6;
-color:white;
-cursor:pointer;
-}
-
-.hidden{
-display:none;
-}
-
-</style>
-
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .admin-table th { background-color: #f2f2f2; }
+    </style>
 </head>
-
 <body>
 
 <header>
-
-<h3>My Store</h3>
-
-<div>
-<button onclick="show('login')">Login</button>
-<button onclick="show('shop')">Shop</button>
-<button onclick="show('orders')">Orders</button>
-<button onclick="show('admin')">Admin</button>
-</div>
-
+    <div class="logo">🛒 زما افغان سټور</div>
+    <div class="nav-links">
+        <button onclick="switchPage('store-page')">فروشګاه (مشتري)</button>
+        <button onclick="switchPage('cart-page')">کڅوړه <span class="cart-badge" id="cart-count">0</span></button>
+        <button onclick="switchPage('admin-page')" class="admin-btn">ډشبورډ (اډمین) 🛠️</button>
+    </div>
 </header>
 
 <div class="container">
+    
+    <!-- ۱. د مشتريانو صفحه (Store Front) -->
+    <div id="store-page" class="page active">
+        <div class="hero">
+            <h2>زما ځانګړې انلاین فروشګاه ته ښه راغلاست</h2>
+            <p>غوره کیفیت، مناسب قیمت او ګړندی خدمات زموږ ویاړ دی.</p>
+        </div>
+        <h2>زموږ نوي محصولات</h2>
+        <div class="products-grid" id="products-container" style="margin-top: 20px;">
+            <!-- محصولات دلته راځي -->
+        </div>
+    </div>
 
-<!-- LOGIN -->
+    <!-- ۲. د پیرودلو کڅوړه (Shopping Cart) -->
+    <div id="cart-page" class="page">
+        <h2>ستاسو د انتخاب شويو توکو کڅوړه</h2>
+        <div id="cart-container" style="margin-top: 20px;">
+            <!-- کڅوړه دلته ښکاري -->
+        </div>
+        <div style="margin-top: 20px; text-align: left; background: white; padding: 20px; border-radius: 8px;">
+            <h3>ټول ټال قیمت: <span id="total-price" style="color: var(--accent);">0</span> افغانۍ</h3>
+            <button class="buy-btn" style="width: auto; margin-top: 15px; padding: 10px 30px;" onclick="checkout()">د پیرودلو نهایي کول</button>
+        </div>
+    </div>
 
-<div id="login">
+    <!-- ۳. د اډمین مجهز ډشبورډ (Admin Dashboard) -->
+    <div id="admin-page" class="page">
+        <h2 style="margin-bottom: 20px;">د مدیریت او کنټرول اډمین پینل</h2>
+        <div class="admin-dashboard">
+            
+            <!-- د نوي محصول فارم -->
+            <div class="admin-card">
+                <h3>نوی محصول اضافه کړئ</h3>
+                <div style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>د محصول نوم:</label>
+                        <input type="text" id="prod-name" placeholder="مثلا: لیدر جاکټ">
+                    </div>
+                    <div class="form-group">
+                        <label>قیمت (افغانۍ):</label>
+                        <input type="number" id="prod-price" placeholder="مثلا: 3500">
+                    </div>
+                    <div class="form-group">
+                        <label>د عکس انټرنیټي لینک (URL):</label>
+                        <input type="text" id="prod-img" placeholder="د عکس لینک دلته پیسټ کړئ">
+                    </div>
+                    <button class="action-btn" onclick="addNewProduct()">محصول نشر کړه</button>
+                </div>
+            </div>
 
-<div class="card">
+            <!-- د ویبسایت احصایه او د محصولاتو لیست -->
+            <div class="admin-card">
+                <h3>د سټور وضعیت (Live Stats)</h3>
+                <div class="stats-grid" style="margin-top: 15px;">
+                    <div class="stat-box">
+                        <p>ټول محصولات</p>
+                        <h3 id="stat-total-products">0</h3>
+                    </div>
+                    <div class="stat-box">
+                        <p>د محصولاتو ارزښت</p>
+                        <h3 id="stat-total-value">0 AFN</h3>
+                    </div>
+                </div>
 
-<h3>Login / Signup</h3>
+                <h3>موجود محصولات د اډمین په نظر کې</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>عکس</th>
+                            <th>نوم</th>
+                            <th>قیمت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- د حذف کولو جدول -->
+                    </tbody>
+                </table>
+            </div>
 
-<input id="email" placeholder="Email">
-
-<input id="pass" type="password" placeholder="Password">
-
-<button onclick="signup()">
-Signup
-</button>
-
-<button onclick="login()">
-Login
-</button>
+        </div>
+    </div>
 
 </div>
 
-</div>
-
-<!-- SHOP -->
-
-<div id="shop" class="hidden">
-
-<h2>Products</h2>
-
-<div id="products"></div>
-
-</div>
-
-<!-- ORDERS -->
-
-<div id="orders" class="hidden">
-
-<h2>My Orders</h2>
-
-<div id="myOrders"></div>
-
-</div>
-
-<!-- ADMIN -->
-
-<div id="admin" class="hidden">
-
-<h2>Admin Panel</h2>
-
-<div id="adminOrders"></div>
-
-</div>
-
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-import {
-getDatabase,
-ref,
-push,
-set,
-onValue,
-update
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-import {
-getAnalytics
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-
-/* FIREBASE CONFIG */
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyCC3jjKBVt_XBU_p_UoqjXQenpGnbZzxe8",
-
-authDomain: "my-store-7ef38.firebaseapp.com",
-
-databaseURL: "https://my-store-7ef38-default-rtdb.firebaseio.com",
-
-projectId: "my-store-7ef38",
-
-storageBucket: "my-store-7ef38.firebasestorage.app",
-
-messagingSenderId: "732533225869",
-
-appId: "1:732533225869:web:74a9cb860d566e406fa5c4",
-
-measurementId: "G-4BQ5TX5S19"
-
-};
-
-/* INIT */
-
-const app = initializeApp(firebaseConfig);
-
-const analytics = getAnalytics(app);
-
-const auth = getAuth(app);
-
-const db = getDatabase(app);
-
-let currentUser = null;
-
-/* NAV */
-
-window.show = (page)=>{
-
-["login","shop","orders","admin"].forEach(id=>{
-
-document.getElementById(id).classList.add("hidden");
-
-});
-
-document.getElementById(page).classList.remove("hidden");
-
-};
-
-/* SIGNUP */
-
-window.signup = async ()=>{
-
-try{
-
-await createUserWithEmailAndPassword(
-auth,
-email.value,
-pass.value
-);
-
-alert("Account created");
-
-}catch(e){
-
-alert(e.message);
-
-}
-
-};
-
-/* LOGIN */
-
-window.login = async ()=>{
-
-try{
-
-await signInWithEmailAndPassword(
-auth,
-email.value,
-pass.value
-);
-
-alert("Login success");
-
-}catch(e){
-
-alert(e.message);
-
-}
-
-};
-
-/* AUTH */
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-currentUser = user;
-
-show("shop");
-
-loadProducts();
-
-loadOrders();
-
-loadAdminOrders();
-
-}else{
-
-show("login");
-
-}
-
-});
-
-/* LOAD PRODUCTS */
-
-function loadProducts(){
-
-onValue(ref(db,"products"),(snap)=>{
-
-let data = snap.val();
-
-let html = "";
-
-if(data){
-
-for(let id in data){
-
-let p = data[id];
-
-html += `
-
-<div class="card">
-
-<b>${p.name}</b><br>
-
-Price: $${p.price}
-
-<br><br>
-
-<button onclick="buy('${p.name}')">
-
-Buy
-
-</button>
-
-</div>
-
-`;
-
-}
-
-}else{
-
-html = "<p>No products</p>";
-
-}
-
-document.getElementById("products").innerHTML = html;
-
-});
-
-}
-
-/* BUY */
-
-window.buy = (name)=>{
-
-if(!currentUser) return;
-
-let order = push(ref(db,"orders"));
-
-set(order,{
-
-product:name,
-
-user:currentUser.email,
-
-status:"pending",
-
-time:Date.now()
-
-});
-
-alert("Order placed");
-
-};
-
-/* MY ORDERS */
-
-function loadOrders(){
-
-onValue(ref(db,"orders"),(snap)=>{
-
-let data = snap.val();
-
-let html = "";
-
-if(data){
-
-for(let id in data){
-
-if(data[id].user === currentUser.email){
-
-html += `
-
-<div class="card">
-
-<b>${data[id].product}</b><br>
-
-Status: ${data[id].status}
-
-</div>
-
-`;
-
-}
-
-}
-
-}
-
-document.getElementById("myOrders").innerHTML = html;
-
-});
-
-}
-
-/* ADMIN ORDERS */
-
-function loadAdminOrders(){
-
-onValue(ref(db,"orders"),(snap)=>{
-
-let data = snap.val();
-
-let html = "";
-
-if(data){
-
-for(let id in data){
-
-html += `
-
-<div class="card">
-
-<b>User:</b> ${data[id].user}<br>
-
-<b>Product:</b> ${data[id].product}<br>
-
-<b>Status:</b> ${data[id].status}
-
-<br><br>
-
-<button onclick="updateOrder('${id}','approved')">
-
-Approve
-
-</button>
-
-</div>
-
-`;
-
-}
-
-}
-
-document.getElementById("adminOrders").innerHTML = html;
-
-});
-
-}
-
-/* UPDATE ORDER */
-
-window.updateOrder = (id,status)=>{
-
-update(ref(db,"orders/"+id),{
-
-status:status
-
-});
-
-};
-
+<script>
+    // لومړني ډیټا که په حافظه کې څه نه وي
+    const defaultProducts = [
+        { id: 1, name: "لوکس نارینه ساعت", price: 1800, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" },
+        { id: 2, name: "کاري عینکې", price: 950, img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500" }
+    ];
+
+    // له لومړۍ حافظې څخه د محصولاتو او کارټ را ایستل
+    let products = JSON.parse(localStorage.getItem('my_products')) || defaultProducts;
+    let cart = JSON.parse(localStorage.getItem('my_cart')) || [];
+
+    // د مخونو بدلول
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // د مشتري په صفحه کې د محصولاتو ښودل
+    function renderStore() {
+        const container = document.getElementById('products-container');
+        container.innerHTML = '';
+        products.forEach(p => {
+            container.innerHTML += `
+                <div class="product-card">
+                    <img src="${p.img}" alt="${p.name}">
+                    <div class="product-info">
+                        <div class="product-title">${p.name}</div>
+                        <div class="product-price">${p.price} افغانۍ</div>
+                    </div>
+                    <button class="buy-btn" onclick="addToCart(${p.id})">کڅوړې ته اضافه کول 🛒</button>
+                </div>
+            `;
+        });
+        updateAdminPanel();
+    }
+
+    // کارټ ته د توکو اچول
+    function addToCart(id) {
+        const item = products.find(p => p.id === id);
+        if(item) {
+            cart.push(item);
+            saveData();
+            updateCartUI();
+            alert(`${item.name} کڅوړې ته اضافه شو!`);
+        }
+    }
+
+    // د کارټ اپډیټ کول
+    function updateCartUI() {
+        document.getElementById('cart-count').innerText = cart.length;
+        const container = document.getElementById('cart-container');
+        container.innerHTML = '';
+        
+        let total = 0;
+        if(cart.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px;">ستاسو کڅوړه خالي ده.</p>';
+        } else {
+            cart.forEach((item, index) => {
+                total += parseInt(item.price);
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+                        <h4>${item.name}</h4>
+                        <p style="color:var(--accent); font-weight:bold;">${item.price} AFN</p>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">حذف</button>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('total-price').innerText = total;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveData();
+        updateCartUI();
+    }
+
+    function checkout() {
+        if(cart.length === 0) {
+            alert("ستاسو کڅوړه خالي ده!");
+            return;
+        }
+        alert("مننه! ستاسو فرمایش ثبت شو. (دا د ډیمو سیسټم دی)");
+        cart = [];
+        saveData();
+        updateCartUI();
+    }
+
+    // د اډمین پینل اپډیټ او احصایه
+    function updateAdminPanel() {
+        document.getElementById('stat-total-products').innerText = products.length;
+        let totalVal = products.reduce((sum, p) => sum + parseInt(p.price), 0);
+        document.getElementById('stat-total-value').innerText = totalVal + " AFN";
+
+        const tableBody = document.getElementById('admin-table-body');
+        tableBody.innerHTML = '';
+        products.forEach(p => {
+            tableBody.innerHTML += `
+                <tr>
+                    <td><img src="${p.img}" style="width:40px; height:40px; object-fit:cover;"></td>
+                    <td>${p.name}</td>
+                    <td>${p.price} AFN</td>
+                    <td><button class="remove-btn" onclick="deleteProduct(${p.id})">ډیلیټ</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    // د نوي محصول اضافه کول د اډمین لخوا
+    function addNewProduct() {
+        const name = document.getElementById('prod-name').value;
+        const price = document.getElementById('prod-price').value;
+        let img = document.getElementById('prod-img').value;
+
+        if(!name || !price) {
+            alert("مهرباني وکړئ نوم او قیمت ولیکئ!");
+            return;
+        }
+        if(!img) img = "https://via.placeholder.com/280x220?text=No+Image";
+
+        const newP = {
+            id: Date.now(), // ځانګړی ایډي
+            name: name,
+            price: parseInt(price),
+            img: img
+        };
+
+        products.push(newP);
+        saveData();
+        renderStore();
+        
+        // فارم خالي کول
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-price').value = '';
+        document.getElementById('prod-img').value = '';
+        
+        alert("نوی محصول په بریالیتوب سره فروشګاه ته اضافه شو!");
+        switchPage('store-page');
+    }
+
+    // د محصول لیری کول د اډمین لخوا
+    function deleteProduct(id) {
+        if(confirm("ایا غواړئ دا محصول د تل لپاره حذف کړئ؟")) {
+            products = products.filter(p => p.id !== id);
+            saveData();
+            renderStore();
+        }
+    }
+
+    // په حافظه کې د ډیټا خوندي کول
+    function saveData() {
+        localStorage.setItem('my_products', JSON.stringify(products));
+        localStorage.setItem('my_cart', JSON.stringify(cart));
+    }
+
+    // د پیل په وخت کې د فنکشنونو چلول
+    renderStore();
+    updateCartUI();
 </script>
 
 </body>
