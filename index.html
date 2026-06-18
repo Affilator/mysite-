@@ -83,7 +83,6 @@
     <div class="grid-layout" id="store-shelf"></div>
 </div>
 
-<!-- CLIENT LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
         <h3>Customer Login</h3>
@@ -95,7 +94,6 @@
 </div>
 
 <script>
-    // که چیرې ستا اډمین پینل خالي وي، دا دوه د بېلګې په توګه په اول ځل خلاصېږي
     const seedInventory = [
         { id: 201, name: "Premium Onyx Chronograph Watch", price: 349, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" },
         { id: 202, name: "Aviator Titanium Sunglasses", price: 185, img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500" }
@@ -110,6 +108,11 @@
         if(mail) {
             alert(`Access Granted! Welcome back: ${mail}`);
             toggleModal(false);
+            
+            // 🌐 د آمازون غوندې په نړیوال سټېټ کې د ننوتلي کاروونکي ثبتول
+            if (window.FaiziStore) {
+                FaiziStore.setUser({ email: mail, role: 'customer' });
+            }
         } else { alert("Please type your credential details."); }
     }
 
@@ -124,6 +127,7 @@
         }
 
         activeStock.forEach(product => {
+            // د تڼۍ دننه مو د پروسې فنکشن د نړیوال سټېټ له لارې وتاړه
             shelf.innerHTML += `
                 <div class="product-card">
                     <div class="image-container">
@@ -133,7 +137,7 @@
                         <div class="item-title">${product.name}</div>
                         <div class="pricing-row">
                             <div class="item-price">$${product.price}</div>
-                            <button class="action-btn" onclick="processPurchase('${product.name}')">Buy Now</button>
+                            <button class="action-btn" onclick="processPurchase(${product.id}, '${product.name}', ${product.price})">Buy Now</button>
                         </div>
                     </div>
                 </div>
@@ -141,17 +145,38 @@
         });
     }
 
-    function processPurchase(name) {
+    // د محصول اخیستلو مسلکي او اتومات نړیواله لاره
+    function processPurchase(id, name, price) {
         alert(`Order Initiated: "${name}" has been routed to secure processing gateway!`);
+        
+        // 🌐 محصول په مستقیم ډول زموږ په خوندي نړیوال سټېټ کې اچول
+        if (window.FaiziStore) {
+            FaiziStore.addToCart({ id: id, name: name, price: price });
+        }
     }
 
-    // د اډمین د پاڼې د نویو بدلونونو د ژوندي جذبولو پټ سیستم
     window.addEventListener('storage', (e) => {
         if(e.key === 'shared_store_stock') { syncAndRender(); }
     });
 
-    // لومړی رن کول
     syncAndRender();
 </script>
+
+<script src="storeState.js"></script>
+
+<script>
+    if (window.FaiziStore) {
+        FaiziStore.subscribe((event, state) => {
+            if (event === 'cart_updated') {
+                const cartCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+                console.log("🔊 نړیوال سټېټ اپډېټ شو! په کارټ کې د جنسونو شمیر دی:", cartCount);
+            }
+            if (event === 'user_session_changed') {
+                console.log("👤 په نړیوال سټېټ کې نوی کاروونکی ثبت شو:", state.currentUser?.email);
+            }
+        });
+    }
+</script>
+
 </body>
 </html>
