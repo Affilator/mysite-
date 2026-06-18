@@ -19,7 +19,7 @@ class GlobalStore {
 
     // ۱. د سټېټ د معلوماتو د لوستلو خوندي لاره (Getter)
     getState() {
-        return JSON.parse(JSON.stringify(this.#state)); // Deep copy ترڅو اصلي ډېټا خراب نشي
+        return JSON.parse(JSON.stringify(this.#state)); // Deep copy ترڅو اصلي ډېټا په براوزر کې خراب نشي
     }
 
     // ۲. په کارټ کې د محصول اضافه کول او د سټاک کنټرول
@@ -53,7 +53,7 @@ class GlobalStore {
         };
     }
 
-    // ۵. ټولو برخو ته د نوي تغیرات رسول (Publish)
+    // ۵. ټولو برخو ته د نوي تغیرات لېږل (Publish)
     #notifyListeners(event) {
         this.#listeners.forEach(callback => callback(event, this.getState()));
     }
@@ -61,4 +61,4 @@ class GlobalStore {
 
 // د نړۍ په کچه د سټور د مغز فعالول او بندول
 window.FaiziStore = new GlobalStore();
-Object.freeze(window.FaiziStore); // د سېسټم د کوډونو بندول ترڅو په براوزر کې څوک بدلون پکې رانه وستلی شي
+Object.freeze(window.FaiziStore); // د سېسټم د کوډونو قانوني بندول ترڅو په براوزر کې څوک بدلون پکې رانه وستلی شي
